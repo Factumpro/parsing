@@ -1,22 +1,26 @@
 import requests
 import csv
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 HOST = 'https://www.enzomuratore.com/'
-URL = 'https://www.enzomuratore.com/sklep/'
-HEADERS = {
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,'
-              'application/signed-exchange;v=b3;q=0.9',
-    'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/89.0.4374.0 Mobile Safari/537.36 '
-}
+REQUEST_URL = 'https://www.enzomuratore.com/sklep/'
 
-STATUS_ACCEPT = 200
+STATUS_CODE_ACCEPT = 200
 CSV_FILE = 'parsing-file.csv'
 
 
+def fake_user_agent():
+    user_agent = {
+        'user-agent': UserAgent().random
+    }
+    return user_agent
+
+
 def get_html(url, params=''):
-    requests_variable = requests.get(url, headers=HEADERS, params=params)
+    user_agent = fake_user_agent()
+    requests_variable = requests.get(url, headers=user_agent, params=params)
+
     return requests_variable
 
 
@@ -46,9 +50,9 @@ def save_csv(items, path):
 
 
 def main():
-    site = get_html(URL)
+    site = get_html(REQUEST_URL)
 
-    if site.status_code == STATUS_ACCEPT:
+    if site.status_code == STATUS_CODE_ACCEPT:
         products = []
         products.extend(get_content(site.text))
         save_csv(products, CSV_FILE)
